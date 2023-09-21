@@ -60,21 +60,6 @@ void AppWindow::onCreate()
 	list[16] = quad3->getVertexList()[4];
 	list[17] = quad3->getVertexList()[0];
 
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	list[i] = quad1->getVertexList()[i];
-	//}
-
-	//for (int i = 5; i < 10; i++)
-	//{
-	//	list[i] = quad2->getVertexList()[i - 5];
-	//}
-
-	//for (int i = 10; i < 15; i++)
-	//{
-	//	list[i] = quad3->getVertexList()[i - 5];
-	//}
-
 	m_vb = GraphicsEngine::get()->createVertexBuffer();
 
 	//TODO: use the loop for this
