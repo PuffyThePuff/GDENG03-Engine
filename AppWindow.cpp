@@ -63,24 +63,26 @@ void AppWindow::onCreate()
 	vertex list[] = 
 	{
 		//X - Y - Z
-		{-0.5f, -0.5f, 0.0f}, // POS1
-		{-0.5f, 0.5f, 0.0f}, // POS2
-		{0.5f, -0.5f, 0.0f},// POS2
-		{0.5f, 0.5f, 0.0f}
+		{{-0.5f, -0.5f, 0.0f}, {1.f, 0.f, 0.f}}, // POS1
+		{{-0.5f, 0.5f, 0.0f}, {0.f, 1.f, 0.f}}, // POS2
+		{{0.5f, -0.5f, 0.0f}, {0.f, 0.f, 1.f}}, // POS3
+		{{0.5f, 0.5f, 0.0f}, {1.f, 1.f, 0.f}}
 	};
 
 	m_vb=GraphicsEngine::get()->createVertexBuffer();
 	UINT size_list = ARRAYSIZE(list);
 
-	GraphicsEngine::get()->createShaders();
-
 	void* shader_byte_code = nullptr;
 	size_t size_shader = 0;
 	GraphicsEngine::get()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shader_byte_code, &size_shader);
 
-	m_vs=GraphicsEngine::get()->createVertexShader(shader_byte_code, size_shader);
+	m_vs = GraphicsEngine::get()->createVertexShader(shader_byte_code, size_shader);
 	m_vb->load(list, sizeof(vertex), size_list, shader_byte_code, size_shader);
 
+	GraphicsEngine::get()->releaseCompiledShader();
+
+	GraphicsEngine::get()->compilePixelShader(L"PixelShader.hlsl", "psmain", &shader_byte_code, &size_shader);
+	m_ps = GraphicsEngine::get()->createPixelShader(shader_byte_code, size_shader);
 	GraphicsEngine::get()->releaseCompiledShader();
 }
 
@@ -94,9 +96,9 @@ void AppWindow::onUpdate()
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 	//SET DEFAULT SHADER IN THE GRAPHICS PIPELINE TO BE ABLE TO DRAW
-	GraphicsEngine::get()->setShaders();
+	//GraphicsEngine::get()->setShaders();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexShader(m_vs);
-
+	GraphicsEngine::get()->getImmediateDeviceContext()->setPixelShader(m_ps);
 
 	//SET THE VERTICES OF THE TRIANGLE TO DRAW
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexBuffer(m_vb);
@@ -111,5 +113,7 @@ void AppWindow::onDestroy()
 	Window::onDestroy();
 	m_vb->release();
 	m_swap_chain->release();
+	m_vs->release();
+	m_ps->release();
 	GraphicsEngine::get()->release();
 }

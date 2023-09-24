@@ -9,6 +9,7 @@ struct vec3
 struct vertex
 {
 	vec3 position;
+	vec3 color;
 };
 
 class PrimitiveShape
