@@ -23,7 +23,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 		window->onCreate();
 		break;
 	}
-
 	case WM_DESTROY:
 	{
 		// Event fired when the window is destroyed
@@ -32,8 +31,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 		::PostQuitMessage(0);
 		break;
 	}
-
-
 	default:
 		return ::DefWindowProc(hwnd, msg, wparam, lparam);
 	}
@@ -44,8 +41,6 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 
 bool Window::init()
 {
-
-
 	//Setting up WNDCLASSEX object
 	WNDCLASSEX wc;
 	wc.cbClsExtra = NULL;
