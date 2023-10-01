@@ -2,10 +2,12 @@
 #include "TriangleShape.h"
 #include "QuadShape.h"
 #include <Windows.h>
+#include <iostream>
 
 __declspec(align(16))
 struct constant
 {
+	//TODO: change this name
 	float m_angle;
 };
 
@@ -92,7 +94,7 @@ void AppWindow::onCreate()
 	GraphicsEngine::get()->releaseCompiledShader();
 
 	constant cc;
-	cc.m_angle = 0;
+	cc.m_angle = 0.f;
 
 	m_cb = GraphicsEngine::get()->createConstantBuffer();
 	m_cb->load(&cc, sizeof(constant));
@@ -109,17 +111,52 @@ void AppWindow::onUpdate()
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
-	unsigned long new_time = 0;
-	if (m_old_time)
-		new_time = ::GetTickCount() - m_old_time;
-	m_delta_time = new_time / 1000.0f;
-	m_old_time = ::GetTickCount();
+	//unsigned long new_time = 0;
+	//if (m_old_time)
+	//	new_time = ::GetTickCount() - m_old_time;
+	//m_delta_time = new_time / 1000.0f;
+	//m_old_time = ::GetTickCount();
 
-	m_angle += 1.57f*m_delta_time;
-	constant cc;
-	cc.m_angle = m_angle;
+	//m_angle += 1.57f * m_delta_time;
+	//constant cc;
+	//cc.m_angle = m_angle;
 
-	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &cc);
+	constant clockTime;
+
+	m_movement_speed += m_movement_direction * EngineTime::getDeltaTime();
+	
+	if (m_movement_speed >= 1.f)
+	{
+		m_movement_direction = -1.f;
+		m_movement_speed = 1.f;
+	}
+
+	if (m_movement_speed <= -1.f)
+	{
+		m_movement_direction = 1.f;
+		m_movement_speed = -1.f;
+	}
+
+	//for the accel deccel part
+	m_acceleration += m_acceleration_direction * EngineTime::getDeltaTime();
+
+	if (m_acceleration >= 4.f)
+	{
+		m_acceleration_direction = -1.f;
+		m_acceleration = 4.f;
+	}
+
+	if (m_acceleration <= -2.f)
+	{
+		m_acceleration_direction = 1.f;
+		m_acceleration = -2.f;
+	}
+
+	//for testing
+	std::cout << EngineTime::getDeltaTime() << std::endl;
+	clockTime.m_angle = m_movement_speed * m_acceleration;
+
+	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &clockTime);
 
 	//BIND CONSTANT BUFFER TO SHADERS
 	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_vs, m_cb);

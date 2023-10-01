@@ -1,15 +1,20 @@
 #include "EngineTime.h"
 
+EngineTime* EngineTime::sharedInstance = nullptr;
+
 void EngineTime::initialize()
 {
-	start = std::chrono::system_clock::now();
-
-	deltaTime = 0.0;
+	if (!sharedInstance)
+	{
+		sharedInstance = new EngineTime;
+	}
 }
 
 double EngineTime::getDeltaTime()
 {
-	return deltaTime;
+	std::chrono::duration<double> delta = sharedInstance->start - sharedInstance->end;
+
+	return delta.count();
 }
 
 EngineTime::EngineTime()
@@ -22,14 +27,10 @@ EngineTime::~EngineTime()
 
 void EngineTime::LogFrameStart()
 {
-	start = std::chrono::system_clock::now();
+	sharedInstance->start = std::chrono::system_clock::now();
 }
 
 void EngineTime::LogFrameEnd()
 {
-	end = std::chrono::system_clock::now();
-
-	auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-
+	sharedInstance->end = sharedInstance->start;
 }

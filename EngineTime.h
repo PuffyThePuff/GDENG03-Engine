@@ -8,8 +8,8 @@ class Window;
 class EngineTime
 {
 public:
-	void initialize();
-	double getDeltaTime();
+	static void initialize();
+	static double getDeltaTime();
 
 private:
 	EngineTime();
@@ -24,8 +24,8 @@ private:
 
 	double deltaTime = 0.0;
 
-	void LogFrameStart();
-	void LogFrameEnd();
+	static void LogFrameStart();
+	static void LogFrameEnd();
 
 	friend class Window;
 };

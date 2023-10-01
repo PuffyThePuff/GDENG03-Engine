@@ -41,6 +41,9 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 
 bool Window::init()
 {
+	//initialize engine time
+	EngineTime::initialize();
+
 	//Setting up WNDCLASSEX object
 	WNDCLASSEX wc;
 	wc.cbClsExtra = NULL;
@@ -75,13 +78,12 @@ bool Window::init()
 	::ShowWindow(m_hwnd, SW_SHOW);
 	::UpdateWindow(m_hwnd);
 
-
-	
-
 	//set this flag to true to indicate that the window is initialized and running
 	m_is_run = true;
 
-
+	//fill up the variables, works but might add this to EngineTime::initialize instead
+	EngineTime::LogFrameStart();
+	EngineTime::LogFrameEnd();
 
 	return true;
 }
@@ -90,6 +92,8 @@ bool Window::broadcast()
 {
 	MSG msg;
 
+	EngineTime::LogFrameStart();
+
 	this->onUpdate();
 
 	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
@@ -97,6 +101,8 @@ bool Window::broadcast()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	EngineTime::LogFrameEnd();
 
 	Sleep(1);
 

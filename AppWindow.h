@@ -25,9 +25,13 @@ private:
 	VertexShader* m_vs;
 	PixelShader* m_ps;
 	ConstantBuffer* m_cb;
-
-	unsigned long m_old_time = 0;
+	
 	float m_delta_time = 0;
 	float m_angle = 0;
+
+	float m_movement_speed = 0.f;
+	float m_acceleration = 1.f;
+	float m_movement_direction = 1.f;
+	float m_acceleration_direction = 1.f;
 };
 
