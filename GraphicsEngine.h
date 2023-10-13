@@ -1,65 +1,60 @@
 #pragma once
 #include <d3d11.h>
-
-class SwapChain;
-class DeviceContext;
-class VertexBuffer;
-class VertexShader;
-class PixelShader;
-class ConstantBuffer;
+#include "DeviceContext.h"
+#include "SwapChain.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
+#include "ConstantBuffer.h"
 
 class GraphicsEngine
 {
 public:
 	GraphicsEngine();
-	//Initialize the GraphicsEngine and DirectX 11 Device
-	bool init();
-	//Release all the resources loaded
-	bool release();
 	~GraphicsEngine();
 
-public:
-	SwapChain* createSwapChain();
-	DeviceContext* getImmediateDeviceContext();
-	VertexBuffer* createVertexBuffer();
-	ConstantBuffer* createConstantBuffer();
-	VertexShader* createVertexShader(const void* shader_byte_code, size_t byte_code_size);
-	PixelShader* createPixelShader(const void* shader_byte_code, size_t byte_code_size);
+	bool init();
+	bool release();
 
-public:
-	bool compileVertexShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
-	bool compilePixelShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
-
-	void releaseCompiledShader();
-
-public:
 	static GraphicsEngine* get();
 
-private:
-	DeviceContext * m_imm_device_context;
+	SwapChain* createSwapChain();
+	ID3D11Device* getDirect3DDevice();
+	DeviceContext* getImmediateDeviceContext();
+
+	VertexShader* createVertexShader(const void* shader_byte_code, size_t byte_code_size);
+	bool compileVertexShader(LPCWSTR file_name, LPCSTR entry_point_name, void** shaderByteCode, size_t* byteCodeSize);
+	void releaseCompiledShader();
+
+
+	PixelShader* createPixelShader(const void* shader_byte_code, size_t byte_code_size);
+	bool compilePixelShader(LPCWSTR file_name, LPCSTR entry_point_name, void** shaderByteCode, size_t* byteCodeSize);
+
+
+	VertexBuffer* createVertexBuffer();
+	IndexBuffer* createIndexBuffer();
+	ConstantBuffer* createConstantBuffer();
 
 private:
-	ID3D11Device * m_d3d_device;
-	D3D_FEATURE_LEVEL m_feature_level;
+	ID3D11Device* m_d3d_device;
+	D3D_FEATURE_LEVEL m_selected_feature_level;
+	DeviceContext* m_imm_context;
 
-private:
-	IDXGIDevice * m_dxgi_device;
+	// for swap chain creation
+	IDXGIDevice* m_dxgi_device;
 	IDXGIAdapter* m_dxgi_adapter;
 	IDXGIFactory* m_dxgi_factory;
-	ID3D11DeviceContext* m_imm_context;
 
-private:
-	ID3DBlob * m_blob = nullptr;
+	ID3DBlob* m_custom_blob;
+	//ID3DBlob* m_ps_blob;
 
-	ID3DBlob* m_vsblob = nullptr;
-	ID3DBlob* m_psblob = nullptr;
-	ID3D11VertexShader* m_vs = nullptr;
-	ID3D11PixelShader* m_ps = nullptr;
+	//ID3D11VertexShader* m_vs;
+	ID3D11PixelShader* m_ps;
 
-private:
+
 	friend class SwapChain;
 	friend class VertexBuffer;
-	friend class VertexShader;
-	friend class PixelShader;
-	friend class ConstantBuffer;
+	friend class IndexBuffer;
 };
+

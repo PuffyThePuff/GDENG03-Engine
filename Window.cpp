@@ -1,23 +1,25 @@
 #include "Window.h"
+#include "Utilities.h"
+#include <stdexcept>
 
-//Window* window=nullptr;
+#include "EngineTime.h"
+
+const HMODULE moduleHandle = GetModuleHandle(nullptr);
+
+//Window* window = nullptr;
 
 Window::Window()
 {
-	
+	m_is_running = false;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	//GetWindowLong(hwnd,)
 	switch (msg)
 	{
 	case WM_CREATE:
 	{
-		// Event fired when the window is created
-		// collected here..
 		Window* window = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
-		// .. and then stored for later lookup
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
 		window->setHWND(hwnd);
 		window->onCreate();
@@ -25,8 +27,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 	}
 	case WM_DESTROY:
 	{
-		// Event fired when the window is destroyed
-		Window* window =(Window*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		Window* window = (Window*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		window->onDestroy();
 		::PostQuitMessage(0);
 		break;
@@ -38,96 +39,89 @@ LRESULT CALLBACK WndProc(HWND hwnd,UINT msg, WPARAM wparam, LPARAM lparam)
 	return NULL;
 }
 
-
 bool Window::init()
 {
-	//initialize engine time
-	EngineTime::initialize();
+	const LPCWSTR class_name = L"Main_GameEngine";
+	WNDCLASSEX wc = {};
 
-	//Setting up WNDCLASSEX object
-	WNDCLASSEX wc;
-	wc.cbClsExtra = NULL;
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.cbWndExtra = NULL;
-	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hInstance = NULL;
-	wc.lpszClassName = L"MyWindowClass";
+	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wc.lpszClassName = class_name;
 	wc.lpszMenuName = L"";
-	wc.style = NULL;
+	wc.hInstance = moduleHandle;
 	wc.lpfnWndProc = &WndProc;
 
-	if (!::RegisterClassEx(&wc)) // If the registration of class will fail, the function will return false
-		return false;
+	if (!::RegisterClassEx(&wc))
+		// RegisterClassEx fails.
+		throw std::runtime_error(Utilities::GetErrorStr());
 
-	/*if (!window)
-		window = this;*/
 
-	//Creation of the window
-	m_hwnd=::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"MyWindowClass", L"DirectX Application", 
-		WS_CAPTION|WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768,
-		NULL, NULL, NULL, this);
+	//if (!window)
+	//	window = this;
 
-	//if the creation fail return false
-	if (!m_hwnd) 
-		return false;
+	// Window Creation
+	m_hwnd = ::CreateWindowEx(
+		WS_EX_OVERLAPPEDWINDOW, class_name, L"DirectX Application",
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		1024, 768, nullptr, nullptr, moduleHandle, this
+	);
 
-	//show up the window
+	if (!m_hwnd)
+		// CreateWindowEx fails.
+		throw std::runtime_error(Utilities::GetErrorStr());
+
+	// show up the window
 	::ShowWindow(m_hwnd, SW_SHOW);
 	::UpdateWindow(m_hwnd);
 
-	//set this flag to true to indicate that the window is initialized and running
-	m_is_run = true;
 
-	//fill up the variables, works but might add this to EngineTime::initialize instead
-	EngineTime::LogFrameStart();
-	EngineTime::LogFrameEnd();
+	m_is_running = true;
 
 	return true;
 }
 
+// Message Pump
 bool Window::broadcast()
 {
-	MSG msg;
-
 	EngineTime::LogFrameStart();
+	this->onUpdate(); // ensure that a final frame update is made (to flush values) before releasing the resources
 
-	this->onUpdate();
-
-	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+	MSG msg;
+	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
-	EngineTime::LogFrameEnd();
-
 	Sleep(1);
-
+	EngineTime::LogFrameEnd();
 	return true;
 }
 
 
 bool Window::release()
 {
-	//Destroy the window
+	// Destroy the window
 	if (!::DestroyWindow(m_hwnd))
-		return false;
+		// DestroyWindow fails.
+		throw std::runtime_error(Utilities::GetErrorStr());
 
 	return true;
 }
 
-bool Window::isRun()
+bool Window::isRunning()
 {
-	return m_is_run;
+	return m_is_running;
 }
 
 RECT Window::getClientWindowRect()
 {
 	RECT rc;
-	::GetClientRect(this->m_hwnd, &rc);
+	GetClientRect(m_hwnd, &rc);
+
 	return rc;
 }
 
@@ -136,17 +130,9 @@ void Window::setHWND(HWND hwnd)
 	this->m_hwnd = hwnd;
 }
 
-void Window::onCreate()
-{
-}
-
-void Window::onUpdate()
-{
-}
-
 void Window::onDestroy()
 {
-	m_is_run = false;
+	m_is_running = false;
 }
 
 Window::~Window()
