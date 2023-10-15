@@ -52,6 +52,8 @@ Cube::Cube(string name, void* shaderByteCode, size_t sizeShader) :AGameObject(na
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::get()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
+
+	InputSystem::getInstance()->addListener(this);
 }
 
 Cube::~Cube()
@@ -59,20 +61,15 @@ Cube::~Cube()
 	this->vertexBuffer->release();
 	this->indexBuffer->release();
 	AGameObject::~AGameObject();
+
+	InputSystem::getInstance()->removeListener(this);
 }
 
 void Cube::update(float deltaTime)
 {
 	this->deltaTime = deltaTime;
-	if (this->speed <= 1.0f) {
-		this->ticks += deltaTime;
-
-		float rotSpeed = this->ticks * this->speed;
-		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
-	}
-	else if (this->speed >= 10.0f) {
-		this->ticks -= deltaTime;
-
+	this->ticks += deltaTime;
+	if (this->speed != 0.f) {
 		float rotSpeed = this->ticks * this->speed;
 		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
 	}
@@ -86,10 +83,12 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	CBData cbData = {};
 	cbData.time = this->ticks * this->speed;
 
-	if (this->deltaPos > 1.0f) {
+	if (this->deltaPos > 1.0f)
+	{
 		this->deltaPos = 0.0f;
 	}
-	else {
+	else 
+	{
 		this->deltaPos += this->deltaTime * 0.1f;
 	}
 
@@ -108,8 +107,8 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 	allMatrix = allMatrix.multiplyTo(translationMatrix);
 	cbData.worldMatrix = allMatrix;
 
-	cbData.viewMatrix.setIdentity();
-	cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	cbData.viewMatrix = SceneCameraManager::getInstance()->getSceneCameraViewMatrix();
+	cbData.projMatrix.setPerspectiveFovLH(1.57f, (float)width / (float)height, 0.1f, 100.f);
 
 	// set shaders
 	deviceContext->setVertexShader(vertexShader);
@@ -129,4 +128,50 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 void Cube::setAnimSpeed(float speed)
 {
 	this->speed = speed;
+}
+
+void Cube::onKeyUp(int key)
+{
+	if (key == 'W')
+	{
+		this->speed = 0.f;
+	}
+
+	if (key == 'S')
+	{
+		this->speed = 0.f;
+	}
+}
+
+void Cube::onKeyDown(int key)
+{
+	if (key == 'W')
+	{
+		this->speed = 1.f;
+	}
+
+	if (key == 'S')
+	{
+		this->speed = -1.f;
+	}
+}
+
+void Cube::onMouseMove(Point delta_position)
+{
+}
+
+void Cube::onLeftMouseDown(Point mouse_position)
+{
+}
+
+void Cube::onLeftMouseUp(Point mouse_position)
+{
+}
+
+void Cube::onRightMouseDown(Point mouse_position)
+{
+}
+
+void Cube::onRightMouseUp(Point mouse_position)
+{
 }

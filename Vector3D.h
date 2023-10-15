@@ -20,7 +20,11 @@ public:
 	static Vector3D ones();
 	static Vector3D zeros();
 
-private:
+	void operator =(const Vector3D& vector);
+	void operator +=(const Vector3D& vector);
+	Vector3D operator +(Vector3D vector);
+	Vector3D operator *(float scalar);
+
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;

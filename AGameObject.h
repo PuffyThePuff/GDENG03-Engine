@@ -45,6 +45,7 @@ public:
 		Matrix4x4 viewMatrix;
 		Matrix4x4 projMatrix;
 		float time;
+		float coefficient;
 	};
 
 protected:

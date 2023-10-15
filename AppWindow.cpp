@@ -26,6 +26,12 @@ void AppWindow::onCreate()
 	std::cout << "hwnd: " << this->m_hwnd;
 	m_swap_chain->init(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
+	//create camera object
+	Camera* sceneCamera = new Camera("default camera");
+	sceneCamera->setPosition(0.f, 0.f, 0.f);
+	sceneCamera->setRotation(0.f, 0.f, 0.f);
+	SceneCameraManager::getInstance()->setSceneCamera(sceneCamera);
+
 	void* shaderByteCode = nullptr;
 	size_t sizeShader = 0;
 
@@ -33,13 +39,13 @@ void AppWindow::onCreate()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &sizeShader);
 	this->m_vertex_shader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		float x = MathUtils::randomFloat(-0.75, 0.75f);
 		float y = MathUtils::randomFloat(-0.75, 0.75f);
 		float z = MathUtils::randomFloat(-0.75, 0.75f);
 
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
-		cubeObject->setAnimSpeed(MathUtils::randomFloat(-3.75f, 3.75f));
+		cubeObject->setAnimSpeed(0.f);
 		cubeObject->setPosition(Vector3D(x, y, z));
 		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
 		this->cubeList.push_back(cubeObject);
@@ -58,6 +64,7 @@ void AppWindow::onUpdate()
 	ticks += EngineTime::getDeltaTime() * 1.0f;
 
 	InputSystem::getInstance()->update();
+	SceneCameraManager::getInstance()->update();
 
 	GraphicsEngine::get()->getImmediateDeviceContext()->clearRenderTargetColor(m_swap_chain, 0.2f, 0.2f, 0.2f, 1);
 
@@ -67,7 +74,8 @@ void AppWindow::onUpdate()
 
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(width, height);
 
-	for (int i = 0; i < cubeList.size(); i++) {
+	for (int i = 0; i < cubeList.size(); i++)
+	{
 		cubeList[i]->update(EngineTime::getDeltaTime());
 		cubeList[i]->draw(width, height, m_vertex_shader, m_pixel_shader);
 	}
@@ -87,6 +95,7 @@ void AppWindow::onDestroy()
 	m_pixel_shader->release();
 
 	InputSystem::destroy();
+	SceneCameraManager::destroy();
 	GraphicsEngine::get()->release();
 }
 

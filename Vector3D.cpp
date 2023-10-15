@@ -49,6 +49,30 @@ Vector3D Vector3D::zeros()
 	return Vector3D(0.0f, 0.0f, 0.0f);
 }
 
+void Vector3D::operator =(const Vector3D& vector)
+{
+	x = vector.x;
+	y = vector.y;
+	z = vector.z;
+}
+
+void Vector3D::operator +=(const Vector3D& vector)
+{
+	x += vector.x;
+	y += vector.y;
+	z += vector.z;
+}
+
+Vector3D Vector3D::operator +(Vector3D vector)
+{
+	return Vector3D(x + vector.x, y + vector.y, z + vector.z);
+}
+
+Vector3D Vector3D::operator *(float scalar)
+{
+	return Vector3D(scalar * x, scalar * y, scalar * z);
+}
+
 Vector3D::~Vector3D()
 {
 }

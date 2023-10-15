@@ -7,6 +7,8 @@
 #include "SwapChain.h"
 #include "VertexBuffer.h"
 #include "VertexShader.h"
+#include "Camera.h"
+#include "SceneCameraManager.h"
 
 class AppWindow: public Window, public InputListener
 {
