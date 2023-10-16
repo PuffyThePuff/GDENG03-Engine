@@ -149,20 +149,34 @@ void Matrix4x4::inverse()
 	this->setMatrix(out);
 }
 
-void Matrix4x4::operator*=(const Matrix4x4& matrix)
+void Matrix4x4::operator *=(const Matrix4x4& matrix)
 {
 	Matrix4x4 out;
+
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
 			out.matrix[i][j] =
-				this->matrix[i][0] * matrix.matrix[0][j] + this->matrix[i][1] * matrix.matrix[1][j] +
-				this->matrix[i][2] * matrix.matrix[2][j] + this->matrix[i][3] * matrix.matrix[3][j];
+				this->matrix[i][0] * matrix.matrix[0][j] +
+				this->matrix[i][1] * matrix.matrix[1][j] +
+				this->matrix[i][2] * matrix.matrix[2][j] +
+				this->matrix[i][3] * matrix.matrix[3][j];
 		}
 	}
 
-	::memcpy(this->matrix, matrix.matrix, sizeof(float) * 16);
+	std::cout<<"multiplied: "<<std::endl;
+	for(int i=0;i<4;i++)
+	{
+		for(int j=0;j<4;j++)
+		{
+			std::cout<<this->matrix[i][j]<<"	";
+		}
+		std::cout<<std::endl;
+	}
+	std::cout<<std::endl;
+
+	this->setMatrix(out);
 }
 
 void Matrix4x4::scale(const Vector3D& scale_vector)
@@ -206,6 +220,16 @@ void Matrix4x4::rotate(int axisOfRotation, float theta)
 		default:
 			rotationMatrix.setIdentity();
 	}
+
+	//std::cout<<"ROTATED: "<<std::endl;
+	//for(int i=0;i<4;i++)
+	//{
+	//	for(int j=0;j<4;j++)
+	//	{
+	//		std::cout<<rotationMatrix.matrix[i][j];
+	//	}
+	//	std::cout<<std::endl;
+	//}
 
 	*this *= rotationMatrix;
 }
