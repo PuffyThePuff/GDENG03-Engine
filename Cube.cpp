@@ -69,7 +69,8 @@ void Cube::update(float deltaTime)
 {
 	this->deltaTime = deltaTime;
 	this->ticks += deltaTime;
-	if (this->speed != 0.f) {
+	if (this->speed != 0.f)
+	{
 		float rotSpeed = this->ticks * this->speed;
 		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
 	}
@@ -132,27 +133,27 @@ void Cube::setAnimSpeed(float speed)
 
 void Cube::onKeyUp(int key)
 {
-	if (key == 'W')
-	{
-		this->speed = 0.f;
-	}
-
-	if (key == 'S')
-	{
-		this->speed = 0.f;
-	}
+	
 }
 
 void Cube::onKeyDown(int key)
 {
-	if (key == 'W')
+	Vector3D pos = this->getLocalPosition();
+	if (key == 'I')
 	{
-		this->speed = 1.f;
+		this->setPosition(pos.x, pos.y + 1.f, pos.z);
 	}
-
-	if (key == 'S')
+	if (key == 'K')
 	{
-		this->speed = -1.f;
+		this->setPosition(pos.x, pos.y - 1.f, pos.z);
+	}
+	if (key == 'J')
+	{
+		this->setPosition(pos.x + 1.f, pos.y, pos.z);
+	}
+	if (key == 'L')
+	{
+		this->setPosition(pos.x - 1.f, pos.y, pos.z);
 	}
 }
 

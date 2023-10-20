@@ -39,13 +39,14 @@ void AppWindow::onCreate()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &sizeShader);
 	this->m_vertex_shader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10; i++)
+	{
 		float x = MathUtils::randomFloat(-0.75, 0.75f);
 		float y = MathUtils::randomFloat(-0.75, 0.75f);
 		float z = MathUtils::randomFloat(-0.75, 0.75f);
 
 		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
-		cubeObject->setAnimSpeed(0.f);
+		cubeObject->setAnimSpeed(1.f);
 		cubeObject->setPosition(Vector3D(x, y, z));
 		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
 		this->cubeList.push_back(cubeObject);
