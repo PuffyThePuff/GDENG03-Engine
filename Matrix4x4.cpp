@@ -165,17 +165,6 @@ void Matrix4x4::operator *=(const Matrix4x4& matrix)
 		}
 	}
 
-	std::cout<<"multiplied: "<<std::endl;
-	for(int i=0;i<4;i++)
-	{
-		for(int j=0;j<4;j++)
-		{
-			std::cout<<this->matrix[i][j]<<"	";
-		}
-		std::cout<<std::endl;
-	}
-	std::cout<<std::endl;
-
 	this->setMatrix(out);
 }
 
@@ -220,16 +209,6 @@ void Matrix4x4::rotate(int axisOfRotation, float theta)
 		default:
 			rotationMatrix.setIdentity();
 	}
-
-	//std::cout<<"ROTATED: "<<std::endl;
-	//for(int i=0;i<4;i++)
-	//{
-	//	for(int j=0;j<4;j++)
-	//	{
-	//		std::cout<<rotationMatrix.matrix[i][j];
-	//	}
-	//	std::cout<<std::endl;
-	//}
 
 	*this *= rotationMatrix;
 }

@@ -26,5 +26,5 @@ public:
 private:
 	void updateViewMatrix();
 
-	bool mCameraControlsEnabled = true;
+	bool mCameraControlsEnabled = false;
 };
