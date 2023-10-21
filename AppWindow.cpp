@@ -39,18 +39,42 @@ void AppWindow::onCreate()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &sizeShader);
 	this->m_vertex_shader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 10; i++)
-	{
-		float x = MathUtils::randomFloat(-0.75, 0.75f);
-		float y = MathUtils::randomFloat(-0.75, 0.75f);
-		float z = MathUtils::randomFloat(-0.75, 0.75f);
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	float x = MathUtils::randomFloat(-0.5f, 0.5f);
+	//	float y = MathUtils::randomFloat(-0.5f, 0.5f);
+	//	float z = MathUtils::randomFloat(-0.5f, 0.5f);
+	//
+	//	Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
+	//	cubeObject->setAnimSpeed(1.f);
+	//	cubeObject->setPosition(Vector3D(x, y, z));
+	//	cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
+	//	this->cubeList.push_back(cubeObject);
+	//}
 
-		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
-		cubeObject->setAnimSpeed(1.f);
-		cubeObject->setPosition(Vector3D(x, y, z));
-		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
-		this->cubeList.push_back(cubeObject);
-	}
+	Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
+	cubeObject->setAnimSpeed(1.f);
+	cubeObject->setPosition(Vector3D(-1.5f, 1.f, -3.f));
+	cubeObject->setScale(Vector3D(1, 1, 1));
+	this->cubeList.push_back(cubeObject);
+
+	Cube* cubeObject1 = new Cube("Cube1", shaderByteCode, sizeShader);
+	cubeObject1->setAnimSpeed(1.f);
+	cubeObject1->setPosition(Vector3D(0.f, 1.f, 0.f));
+	cubeObject1->setScale(Vector3D(1, 1, 1));
+	this->cubeList.push_back(cubeObject1);
+
+	Cube* cubeObject2 = new Cube("Cube2", shaderByteCode, sizeShader);
+	cubeObject2->setAnimSpeed(1.f);
+	cubeObject2->setPosition(Vector3D(2.6f, 1.f, 2.f));
+	cubeObject2->setScale(Vector3D(1, 1, 1));
+	this->cubeList.push_back(cubeObject2);
+
+	Cube* Plane = new Cube("Plane", shaderByteCode, sizeShader);
+	Plane->setAnimSpeed(1.f);
+	Plane->setPosition(Vector3D(0.f, -0.5f, 0.f));
+	Plane->setScale(Vector3D(5, 0, 5));
+	this->cubeList.push_back(Plane);
 
 	graphEngine->releaseCompiledShader(); // this must be called after compilation of each shader
 

@@ -8,16 +8,16 @@ Cube::Cube(string name, void* shaderByteCode, size_t sizeShader) :AGameObject(na
 	Vertex quadList[] = {
 		//X, Y, Z
 		//FRONT FACE
-		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,0,0),  Vector3D(0.2f,0,0) },
-		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(1,1,0), Vector3D(0.2f,0.2f,0) },
-		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(1,1,0),  Vector3D(0.2f,0.2f,0) },
-		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(1,0,0), Vector3D(0.2f,0,0) },
+		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(0,0,1),  Vector3D(1,0,0) },
+		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
+		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(0,0,1),  Vector3D(1,0,0) },
+		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(0,0,1), Vector3D(1,0,0) },
 
 		//BACK FACE
-		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,1,0), Vector3D(0,0.2f,0) },
-		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,1,1), Vector3D(0,0.2f,0.2f) },
-		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,1,1),  Vector3D(0,0.2f,0.2f) },
-		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,1,0), Vector3D(0,0.2f,0) },
+		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
+		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
+		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,0,1),  Vector3D(1,0,0) },
+		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,0,1), Vector3D(1,0,0) },
 	};
 
 	this->vertexBuffer = GraphicsEngine::get()->createVertexBuffer();
@@ -69,11 +69,32 @@ void Cube::update(float deltaTime)
 {
 	this->deltaTime = deltaTime;
 	this->ticks += deltaTime;
-	if (this->speed != 0.f)
-	{
-		float rotSpeed = this->ticks * this->speed;
-		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
-	}
+
+	//if (this->speed != 0.f)
+	//{
+	//	float rotSpeed = this->ticks * this->speed;
+	//	this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+	//}
+
+	//const float delta = (sin(this->ticks) + 1.f);
+	//this->setPosition(Vector3D::lerp(Vector3D(1.f, 1.f, this->getLocalPosition().z), Vector3D(0.25f, 0.25f, this->getLocalPosition().z), delta));
+	//this->setScale(Vector3D::lerp(Vector3D(1.f, 1.f, 1.f), Vector3D(0.25f, 0.25f, 0.25f), delta));
+
+	//if (!this->isFlattened)
+	//{
+	//	float deltaScale = 0.05f * deltaTime;
+	//	Vector3D newScale = this->getLocalScale();
+	//	newScale += Vector3D(1.5f * deltaScale, -deltaScale, 1.5f * deltaScale);
+
+	//	if (newScale.y > 0.f)
+	//	{
+	//		this->setScale(newScale);
+	//	}
+	//	else
+	//	{
+	//		this->isFlattened = true;
+	//	}
+	//}
 }
 
 void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
