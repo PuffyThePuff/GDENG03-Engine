@@ -43,5 +43,9 @@ private:
 
 	VertexShader* m_vertex_shader;
 	PixelShader* m_pixel_shader;
+
+	bool isCubeAnimated = true;
+	bool isDemoWindowOpen = false;
+	float skyboxColor[3];
 };
 

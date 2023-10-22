@@ -4,6 +4,8 @@
 
 #include "EngineTime.h"
 
+#include"imgui_impl_win32.h"
+
 const HMODULE moduleHandle = GetModuleHandle(nullptr);
 
 //Window* window = nullptr;
@@ -13,27 +15,34 @@ Window::Window()
 	m_is_running = false;
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);	
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+	{
+		return true;
+	}
+
 	switch (msg)
 	{
-	case WM_CREATE:
-	{
-		Window* window = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
-		window->setHWND(hwnd);
-		window->onCreate();
-		break;
-	}
-	case WM_DESTROY:
-	{
-		Window* window = (Window*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		window->onDestroy();
-		::PostQuitMessage(0);
-		break;
-	}
-	default:
-		return ::DefWindowProc(hwnd, msg, wparam, lparam);
+		case WM_CREATE:
+		{
+			Window* window = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
+			window->setHWND(hwnd);
+			window->onCreate();
+			break;
+		}
+		case WM_DESTROY:
+		{
+			Window* window = (Window*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+			window->onDestroy();
+			::PostQuitMessage(0);
+			break;
+		}
+		default:
+			return ::DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
 	return NULL;

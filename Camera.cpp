@@ -75,14 +75,17 @@ void Camera::onKeyDown(int key)
 
 void Camera::onMouseMove(const Point deltaPos)
 {
-	Vector3D newRotation = this->getLocalRotation();
+	if (mCameraControlsEnabled)
+	{
+		Vector3D newRotation = this->getLocalRotation();
 
-	newRotation.y += (float)deltaPos.getX() * 0.01f;
-	newRotation.x += (float)deltaPos.getY() * 0.01f;
+		newRotation.y += (float)deltaPos.getX() * 0.01f;
+		newRotation.x += (float)deltaPos.getY() * 0.01f;
 
-	this->setRotation(newRotation);
+		this->setRotation(newRotation);
 
-	updateViewMatrix();
+		updateViewMatrix();
+	}
 }
 
 void Camera::onLeftMouseDown(const Point deltaPos)
