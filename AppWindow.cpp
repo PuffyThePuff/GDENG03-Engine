@@ -11,9 +11,9 @@
 #include "MathUtils.h"
 #include "Matrix4x4.h"
 
-#include"imgui.h"
-#include"imgui_impl_win32.h"
-#include"imgui_impl_dx11.h"
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
 
 void AppWindow::onCreate()
 {
@@ -137,9 +137,9 @@ void AppWindow::onDestroy()
 {
 	Window::onDestroy();
 	m_swap_chain->release();
-	m_vertex_buffer->release();
-	m_index_buffer->release();
-	m_constant_buffer->release();
+	//m_vertex_buffer->release();
+	//m_index_buffer->release();
+	//m_constant_buffer->release();
 
 	m_vertex_shader->release();
 	m_pixel_shader->release();
