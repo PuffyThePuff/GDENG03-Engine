@@ -10,6 +10,7 @@
 #include "InputSystem.h"
 #include "MathUtils.h"
 #include "Matrix4x4.h"
+#include "UIManager.h"
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -68,14 +69,7 @@ void AppWindow::onCreate()
 	this->m_pixel_shader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-	ImGui_ImplWin32_Init(this->m_hwnd);
-	ImGui_ImplDX11_Init(GraphicsEngine::get()->getDirect3DDevice(), GraphicsEngine::get()->getImmediateDeviceContext()->getDeviceContext());
+	UIManager::getInstance()->initialize(this->m_hwnd);
 }
 
 void AppWindow::onUpdate()

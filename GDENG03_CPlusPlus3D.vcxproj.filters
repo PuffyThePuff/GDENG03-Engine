@@ -60,6 +60,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{32fcb339-2b4d-493a-9b5e-1fbcb6d01c93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GameEngine\UI">
+      <UniqueIdentifier>{24d6c527-8fa7-4ba0-aea4-f1c5ddf02bff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">
@@ -154,6 +157,12 @@
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>Source Files\GameEngine\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="AUIScreen.cpp">
+      <Filter>Source Files\GameEngine\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +261,12 @@
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>Source Files\GameEngine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="AUIScreen.h">
+      <Filter>Source Files\GameEngine\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
