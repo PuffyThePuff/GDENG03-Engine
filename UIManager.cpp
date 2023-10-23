@@ -1,4 +1,5 @@
 #include "UIManager.h"
+#include "GraphicsEngine.h"
 
 UIManager* UIManager::getInstance()
 {
