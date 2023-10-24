@@ -1,31 +1,32 @@
 #pragma once
 #include <Windows.h>
-#include "EngineTime.h"
 
 class Window
 {
 public:
 	Window();
-	//Initialize the window
+	~Window();
+
+	// Initialize the Window
 	bool init();
+	// When window is running:
 	bool broadcast();
-	//Release the window
+	// Release the Window
 	bool release();
-	bool isRun();
+
+	bool isRunning();
 
 	RECT getClientWindowRect();
+
 	void setHWND(HWND hwnd);
 
-
-	//EVENTS
-	virtual void onCreate();
-	virtual void onUpdate();
+	// Events
+	virtual void onCreate() = 0;
+	virtual void onUpdate() = 0;
 	virtual void onDestroy();
 
-
-	~Window();
 protected:
 	HWND m_hwnd;
-	bool m_is_run;
+	bool m_is_running;
 };
 

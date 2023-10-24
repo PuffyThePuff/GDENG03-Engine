@@ -1,7 +1,6 @@
 #pragma once
-#include <iostream>
+
 #include <chrono>
-#include <ctime>
 
 class Window;
 
@@ -10,12 +9,11 @@ class EngineTime
 public:
 	static void initialize();
 	static double getDeltaTime();
-
 private:
 	EngineTime();
 	~EngineTime();
-	EngineTime(EngineTime const&) {};
-	EngineTime& operator= (EngineTime const&){};
+	EngineTime(EngineTime const&) {}
+	EngineTime& operator=(EngineTime const*){}
 
 	static EngineTime* sharedInstance;
 
@@ -29,3 +27,4 @@ private:
 
 	friend class Window;
 };
+
