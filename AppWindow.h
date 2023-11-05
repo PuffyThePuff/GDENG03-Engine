@@ -9,6 +9,8 @@
 #include "VertexShader.h"
 #include "Camera.h"
 #include "SceneCameraManager.h"
+#include "UIManager.h"
+#include "GameObjectManager.h"
 
 class AppWindow: public Window, public InputListener
 {

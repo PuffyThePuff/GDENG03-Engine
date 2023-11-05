@@ -10,7 +10,6 @@
 #include "InputSystem.h"
 #include "MathUtils.h"
 #include "Matrix4x4.h"
-#include "UIManager.h"
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -23,6 +22,7 @@ void AppWindow::onCreate()
 	EngineTime::initialize();
 	InputSystem::initialize();
 	InputSystem::getInstance()->addListener(this);
+	GameObjectManager::initialize();
 
 	m_swap_chain = GraphicsEngine::get()->createSwapChain();
 
@@ -49,18 +49,20 @@ void AppWindow::onCreate()
 	graphEngine->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &sizeShader);
 	this->m_vertex_shader = graphEngine->createVertexShader(shaderByteCode, sizeShader);
 
-	for (int i = 0; i < 3; i++)
-	{
-		float x = MathUtils::randomFloat(-0.5f, 0.5f);
-		float y = MathUtils::randomFloat(-0.5f, 0.5f);
-		float z = MathUtils::randomFloat(-0.5f, 0.5f);
-	
-		Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
-		cubeObject->setAnimSpeed(1.f);
-		cubeObject->setPosition(Vector3D(x, y, z));
-		cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
-		this->cubeList.push_back(cubeObject);
-	}
+	GameObjectManager::getInstance()->setVertexShaderProperties(shaderByteCode, sizeShader);
+
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	float x = MathUtils::randomFloat(-0.5f, 0.5f);
+	//	float y = MathUtils::randomFloat(-0.5f, 0.5f);
+	//	float z = MathUtils::randomFloat(-0.5f, 0.5f);
+	//
+	//	Cube* cubeObject = new Cube("Cube", shaderByteCode, sizeShader);
+	//	cubeObject->setAnimSpeed(1.f);
+	//	cubeObject->setPosition(Vector3D(x, y, z));
+	//	cubeObject->setScale(Vector3D(0.25, 0.25, 0.25));
+	//	this->cubeList.push_back(cubeObject);
+	//}
 
 	graphEngine->releaseCompiledShader(); // this must be called after compilation of each shader
 
@@ -69,7 +71,7 @@ void AppWindow::onCreate()
 	this->m_pixel_shader = graphEngine->createPixelShader(shaderByteCode, sizeShader);
 	graphEngine->releaseCompiledShader();
 
-	UIManager::getInstance()->initialize(this->m_hwnd);
+	UIManager::initialize(this->m_hwnd);
 
 	//IMGUI_CHECKVERSION();
 	//ImGui::CreateContext();
@@ -89,28 +91,28 @@ void AppWindow::onUpdate()
 	SceneCameraManager::getInstance()->update();
 
 	//set up IMGUI window
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	//ImGui_ImplDX11_NewFrame();
+	//ImGui_ImplWin32_NewFrame();
+	//ImGui::NewFrame();
 
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	ImGui::Begin("Scene Settings", NULL, windowFlags);
-	ImGui::SetWindowSize(ImVec2(400, 120));
-	ImGui::Text("Below are settings for configuring the scene.");
-	ImGui::Checkbox("Show Demo Window", &isDemoWindowOpen);
-	ImGui::ColorEdit3("Clear Color", this->skyboxColor);
-	if (isCubeAnimated) {
-		if (ImGui::Button("Pause Animation")) isCubeAnimated = false;
-	}
-	else if (ImGui::Button("Resume Animation")) isCubeAnimated = true;
+	//ImGuiWindowFlags windowFlags = 0;
+	//windowFlags |= ImGuiWindowFlags_NoResize;
+	//ImGui::Begin("Scene Settings", NULL, windowFlags);
+	//ImGui::SetWindowSize(ImVec2(400, 120));
+	//ImGui::Text("Below are settings for configuring the scene.");
+	//ImGui::Checkbox("Show Demo Window", &isDemoWindowOpen);
+	//ImGui::ColorEdit3("Clear Color", this->skyboxColor);
+	//if (isCubeAnimated) {
+	//	if (ImGui::Button("Pause Animation")) isCubeAnimated = false;
+	//}
+	//else if (ImGui::Button("Resume Animation")) isCubeAnimated = true;
 
-	ImGui::End();
+	//ImGui::End();
 
-	if (isDemoWindowOpen) 
-	{
-		ImGui::ShowDemoWindow();
-	}
+	//if (isDemoWindowOpen) 
+	//{
+	//	ImGui::ShowDemoWindow();
+	//}
 
 	GraphicsEngine::get()->getImmediateDeviceContext()->clearRenderTargetColor(m_swap_chain, this->skyboxColor[0], this->skyboxColor[1], this->skyboxColor[2], 1);
 
@@ -120,18 +122,22 @@ void AppWindow::onUpdate()
 
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(width, height);
 
-	for (int i = 0; i < cubeList.size(); i++)
-	{
-		if (isCubeAnimated)
-		{
-			cubeList[i]->update(EngineTime::getDeltaTime());
-		}
-		cubeList[i]->draw(width, height, m_vertex_shader, m_pixel_shader);
-	}
+	//for (int i = 0; i < cubeList.size(); i++)
+	//{
+	//	if (isCubeAnimated)
+	//	{
+	//		cubeList[i]->update(EngineTime::getDeltaTime());
+	//	}
+	//	cubeList[i]->draw(width, height, m_vertex_shader, m_pixel_shader);
+	//}
 
 	//render IMGUI
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	//ImGui::Render();
+	//ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	
+	GameObjectManager::getInstance()->update();
+	GameObjectManager::getInstance()->render(width, height, this->m_vertex_shader, this->m_pixel_shader);
+	UIManager::getInstance()->drawAllUI();
 
 	m_swap_chain->present(true);
 }
@@ -147,13 +153,15 @@ void AppWindow::onDestroy()
 	m_vertex_shader->release();
 	m_pixel_shader->release();
 
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplDX11_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 
 	InputSystem::destroy();
 	SceneCameraManager::destroy();
 	GraphicsEngine::get()->release();
+	GameObjectManager::destroy();
+	UIManager::destroy();
 }
 
 void AppWindow::onKeyDown(int key)

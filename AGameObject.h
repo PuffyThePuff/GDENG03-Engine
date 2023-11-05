@@ -48,11 +48,20 @@ public:
 		float coefficient;
 	};
 
+	void selectObject();
+	void deselectObject();
+
+	void setActive(bool cond);
+	bool isActive();
+	
 protected:
 	string name;
 	Vector3D localPosition;
 	Vector3D localScale;
 	Vector3D localRotation;
 	Matrix4x4 localMatrix;
+
+	bool isSelected = false;
+	bool mIsActive = true;
 };
 

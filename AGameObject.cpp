@@ -61,3 +61,23 @@ string AGameObject::getName()
 {
 	return this->name;
 }
+
+void AGameObject::selectObject()
+{
+	this->isSelected = true;
+}
+
+void AGameObject::deselectObject()
+{
+	this->isSelected = false;
+}
+
+void AGameObject::setActive(bool cond)
+{
+	this->mIsActive = cond;
+}
+
+bool AGameObject::isActive()
+{
+	return this->mIsActive;
+}
