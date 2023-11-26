@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include "imgui.h"
 
 typedef std::string String;
 class UIManager;

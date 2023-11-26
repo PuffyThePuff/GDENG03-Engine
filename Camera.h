@@ -1,8 +1,6 @@
 #pragma once
 #include "AGameObject.h"
 #include "InputListener.h"
-#include "InputSystem.h"
-#include "Matrix4x4.h"
 
 class Camera : public AGameObject, public InputListener
 {
@@ -11,20 +9,27 @@ public:
 	~Camera();
 
 	void update(float deltaTime) override;
+	void draw(int width, int height) override;
 	Matrix4x4 getViewMatrix();
 
-	void onKeyUp(int key) override;
-	void onKeyDown(int key) override;
-	void onMouseMove(const Point deltaPos) override;
-	void onLeftMouseDown(const Point deltaPos) override;
-	void onLeftMouseUp(const Point deltaPos) override;
-	void onRightMouseDown(const Point deltaPos) override;
-	void onRightMouseUp(const Point deltaPos) override;
-
-	void draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader) override;
+	virtual void onKeyDown(int key) override;
+	virtual void onKeyUp(int key) override;
+	virtual void onMouseMove(const Point deltaPos) override;
+	virtual void onLeftMouseDown(const Point deltaPos) override;
+	virtual void onLeftMouseUp(const Point deltaPos) override;
+	virtual void onRightMouseDown(const Point deltaPos) override;
+	virtual void onRightMouseUp(const Point deltaPos) override;
 
 private:
 	void updateViewMatrix();
 
-	bool mCameraControlsEnabled = true;
+	float ticks = 0.0f;
+	float mouseDown = false;
+
+	Vector3D forwardDirection;
+	Vector3D backwardDirection;
+	Matrix4x4 viewMatrix;
+	//float forwardDirection = 0.0f;
+	//Matrix4x4 worldCameraMatrix;
 };
+

@@ -1,23 +1,33 @@
 #include "Cube.h"
 #include "GraphicsEngine.h"
+#include "SceneCameraHandler.h"
+#include "ShaderLibrary.h"
 #include "SwapChain.h"
 
-Cube::Cube(string name, void* shaderByteCode, size_t sizeShader) :AGameObject(name)
+Cube::Cube(String name, bool skipInit) :AGameObject(name)
 {
+	if (skipInit)
+		return;
+
+	ShaderNames shaderNames;
+	void* shaderByteCode = NULL;
+	size_t sizeShader = 0;
+	ShaderLibrary::getInstance()->requestVertexShaderData(shaderNames.BASE_VERTEX_SHADER_NAME, &shaderByteCode, &sizeShader);
+
 	//create buffers for drawing. vertex data that needs to be drawn are temporarily placed here.
 	Vertex quadList[] = {
 		//X, Y, Z
 		//FRONT FACE
-		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(0,0,1),  Vector3D(1,0,0) },
-		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
-		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(0,0,1),  Vector3D(1,0,0) },
-		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(0,0,1), Vector3D(1,0,0) },
+		{Vector3D(-0.5f,-0.5f,-0.5f),    Vector3D(1,0,0),  Vector3D(0.2f,0,0) },
+		{Vector3D(-0.5f,0.5f,-0.5f),    Vector3D(1,1,0), Vector3D(0.2f,0.2f,0) },
+		{Vector3D(0.5f,0.5f,-0.5f),   Vector3D(1,1,0),  Vector3D(0.2f,0.2f,0) },
+		{Vector3D(0.5f,-0.5f,-0.5f),     Vector3D(1,0,0), Vector3D(0.2f,0,0) },
 
 		//BACK FACE
-		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
-		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,0,1), Vector3D(1,0,0) },
-		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,0,1),  Vector3D(1,0,0) },
-		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,0,1), Vector3D(1,0,0) },
+		{Vector3D(0.5f,-0.5f,0.5f),    Vector3D(0,1,0), Vector3D(0,0.2f,0) },
+		{Vector3D(0.5f,0.5f,0.5f),    Vector3D(0,1,1), Vector3D(0,0.2f,0.2f) },
+		{Vector3D(-0.5f,0.5f,0.5f),   Vector3D(0,1,1),  Vector3D(0,0.2f,0.2f) },
+		{Vector3D(-0.5f,-0.5f,0.5f),     Vector3D(0,1,0), Vector3D(0,0.2f,0) },
 	};
 
 	this->vertexBuffer = GraphicsEngine::get()->createVertexBuffer();
@@ -52,59 +62,62 @@ Cube::Cube(string name, void* shaderByteCode, size_t sizeShader) :AGameObject(na
 	cbData.time = 0;
 	this->constantBuffer = GraphicsEngine::get()->createConstantBuffer();
 	this->constantBuffer->load(&cbData, sizeof(CBData));
-
-	InputSystem::getInstance()->addListener(this);
 }
 
 Cube::~Cube()
 {
 	this->vertexBuffer->release();
 	this->indexBuffer->release();
-	this->constantBuffer->release();
 	AGameObject::~AGameObject();
-
-	InputSystem::getInstance()->removeListener(this);
 }
 
 void Cube::update(float deltaTime)
 {
 	this->deltaTime = deltaTime;
-	this->ticks += deltaTime;
+	/*if (this->speed <= 1.0f) {
+		this->ticks += deltaTime;
+
+		float rotSpeed = this->ticks * this->speed;
+		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+	}
+	else if (this->speed >= 10.0f) {
+		this->ticks -= deltaTime;
+
+		float rotSpeed = this->ticks * this->speed;
+		this->setRotation(rotSpeed, rotSpeed, rotSpeed);
+	}*/
 }
 
-void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* pixelShader)
+void Cube::draw(int width, int height)
 {
 	GraphicsEngine* graphEngine = GraphicsEngine::get();
 	DeviceContext* deviceContext = graphEngine->getImmediateDeviceContext();
 
+	//set vertex shader and pixel shader for the object
+	ShaderNames shaderNames;
+	deviceContext->setRenderConfig(ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME), ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME));
+
+
 	CBData cbData = {};
-	cbData.time = this->ticks * this->speed;
-	
-	Matrix4x4 allMatrix; allMatrix.setIdentity();
-	Matrix4x4 translationMatrix; translationMatrix.setTranslation(this->getLocalPosition());
-	Matrix4x4 scaleMatrix; scaleMatrix.setScale(this->getLocalScale());
-	Vector3D rotation = this->getLocalRotation();
-	Matrix4x4 zMatrix; zMatrix.setRotationZ(rotation.getValues().z);
-	Matrix4x4 xMatrix; xMatrix.setRotationX(rotation.getValues().x);
-	Matrix4x4 yMatrix; yMatrix.setRotationY(rotation.getValues().y);
-	// Combine x-y-z rotation matrices into one.
-	Matrix4x4 rotMatrix; rotMatrix.setIdentity();
-	rotMatrix = rotMatrix.multiplyTo(xMatrix.multiplyTo(yMatrix.multiplyTo(zMatrix)));
-	//Scale --> Rotate --> Translate as recommended order.
-	allMatrix = allMatrix.multiplyTo(scaleMatrix.multiplyTo(rotMatrix));
-	allMatrix = allMatrix.multiplyTo(translationMatrix);
-	cbData.worldMatrix = allMatrix;
 
-	cbData.viewMatrix = SceneCameraManager::getInstance()->getSceneCameraViewMatrix();
-	cbData.projMatrix.setPerspectiveFovLH(1.57f, (float)width / (float)height, 0.1f, 100.f);
+	if (this->overrideMatrix)
+	{
+		cbData.worldMatrix = this->localMatrix;
+	}
+	else
+	{
+		this->updateLocalMatrix();
+		cbData.worldMatrix = this->localMatrix;
+	}
 
-	// set shaders
-	deviceContext->setVertexShader(vertexShader);
-	deviceContext->setPixelShader(pixelShader);
+	cbData.viewMatrix = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+
+	//cbData.projMatrix.setOrthoLH(width / 400.0f, height / 400.0f, -4.0f, 4.0f);
+	float aspectRatio = (float)width / (float)height;
+	cbData.projMatrix.setPerspectiveFovLH(aspectRatio, aspectRatio, 0.1f, 1000.0f);
 
 	this->constantBuffer->update(deviceContext, &cbData);
-	deviceContext->setConstantBuffer(vertexShader, this->constantBuffer);
-	deviceContext->setConstantBuffer(pixelShader, this->constantBuffer);
+	deviceContext->setConstantBuffer(this->constantBuffer);
 
 	deviceContext->setIndexBuffer(this->indexBuffer);
 	deviceContext->setVertexBuffer(this->vertexBuffer);
@@ -116,50 +129,4 @@ void Cube::draw(int width, int height, VertexShader* vertexShader, PixelShader* 
 void Cube::setAnimSpeed(float speed)
 {
 	this->speed = speed;
-}
-
-void Cube::onKeyUp(int key)
-{
-	
-}
-
-void Cube::onKeyDown(int key)
-{
-	Vector3D pos = this->getLocalPosition();
-	if (key == 'I')
-	{
-		this->setPosition(pos.x, pos.y + 1.f, pos.z);
-	}
-	if (key == 'K')
-	{
-		this->setPosition(pos.x, pos.y - 1.f, pos.z);
-	}
-	if (key == 'J')
-	{
-		this->setPosition(pos.x + 1.f, pos.y, pos.z);
-	}
-	if (key == 'L')
-	{
-		this->setPosition(pos.x - 1.f, pos.y, pos.z);
-	}
-}
-
-void Cube::onMouseMove(Point delta_position)
-{
-}
-
-void Cube::onLeftMouseDown(Point mouse_position)
-{
-}
-
-void Cube::onLeftMouseUp(Point mouse_position)
-{
-}
-
-void Cube::onRightMouseDown(Point mouse_position)
-{
-}
-
-void Cube::onRightMouseUp(Point mouse_position)
-{
 }

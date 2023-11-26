@@ -1,14 +1,22 @@
 #pragma once
-#include "AUIScreen.h"
-#include "GraphicsEngine.h"
-
+#include <iostream>
 #include <vector>
+#include <string>
 #include <unordered_map>
-#include <Windows.h>
-
 #include "imgui.h"
-#include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+#include "Window.h"
+#include "AUIScreen.h"
+
+class UINames {
+public:
+	const String PROFILER_SCREEN = "PROFILER_SCREEN";
+	const String MENU_SCREEN = "MENU_SCREEN";
+	const String INSPECTOR_SCREEN = "INSPECTOR_SCREEN";
+	const String HIERARCHY_SCREEN = "HIERARCHY_SCREEN";
+};
+
 
 class UIManager
 {
@@ -23,16 +31,14 @@ public:
 
 	void drawAllUI();
 
-	static const int WINDOW_WIDTH = 1440;
-	static const int WINDOW_HEIGHT = 900;
-
 private:
 	UIManager(HWND windowHandle);
 	~UIManager();
-	UIManager(UIManager const&) {};				//private copy constructor
-	UIManager& operator=(UIManager const&) {}	//private assignment operator
+	UIManager(UIManager const&) {};             // copy constructor is private
+	UIManager& operator=(UIManager const&) {};  // assignment operator is private*/
 	static UIManager* sharedInstance;
 
 	UIList uiList;
 	UITable uiTable;
 };
+

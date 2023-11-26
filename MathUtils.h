@@ -1,11 +1,13 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 class MathUtils
 {
 public:
 	static float randomFloat(float a, float b);
 	static int randomInt(int a, int b);
-	static float toRadians(float theta);
-	static float toDegrees(float theta);
+
+	static constexpr float PI = M_PI;
 };
 

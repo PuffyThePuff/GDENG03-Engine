@@ -2,249 +2,176 @@
 #include "EngineTime.h"
 #include "Cube.h"
 #include "Plane.h"
-#include <iostream>
+#include "MathUtils.h"
+#include "AGameObject.h"
+#include "PhysicsCube.h"
+#include "PhysicsPlane.h"
+#include "TexturedCube.h"
 
-GameObjectManager* GameObjectManager::instance = nullptr;
+GameObjectManager* GameObjectManager::sharedInstance = NULL;
 
 GameObjectManager* GameObjectManager::getInstance()
 {
-	return instance;
+	return sharedInstance;
 }
 
 void GameObjectManager::initialize()
 {
-	instance = new GameObjectManager();
+	sharedInstance = new GameObjectManager();
 }
 
 void GameObjectManager::destroy()
 {
-	instance->gameObjectTable.clear();
+	sharedInstance->gameObjectMap.clear();
+	sharedInstance->gameObjectList.clear();
+	delete sharedInstance;
+}
 
-	for (auto& i : instance->gameObjectList)
-	{
-		delete i;
+AGameObject* GameObjectManager::findObjectByName(String name)
+{
+	if (this->gameObjectMap[name] != NULL) {
+		return this->gameObjectMap[name];
+	}
+	else {
+		std::cout << "Object " << name << " not found!";
+		return NULL;
 	}
 }
 
-AGameObject* GameObjectManager::findObjectByName(std::string name)
+GameObjectManager::List GameObjectManager::getAllObjects()
 {
-	return gameObjectTable[name];
+	return this->gameObjectList;
 }
 
-std::vector<AGameObject*> GameObjectManager::getAllGameObjects()
+int GameObjectManager::activeObjects()
 {
-	return gameObjectList;
+	return this->gameObjectList.size();
 }
 
-int GameObjectManager::getObjectCount()
+void GameObjectManager::updateAll()
 {
-	return gameObjectList.size();
-}
-
-int GameObjectManager::getActiveObjectCount()
-{
-	int activeObjectCount = 0;
-	for (auto& i : gameObjectList)
-	{
-		if (i->isActive()) activeObjectCount++;
-	}
-	return activeObjectCount;
-}
-
-void GameObjectManager::update()
-{
-	for (auto& i : gameObjectList)
-	{
-		if (i->isActive())
-		{
-			i->update(EngineTime::getDeltaTime());
+	for (int i = 0; i < this->gameObjectList.size(); i++) {
+		//replace with component update
+		if (this->gameObjectList[i]->isEnabled()) {
+			this->gameObjectList[i]->update(EngineTime::getDeltaTime());
 		}
 	}
 }
 
-void GameObjectManager::render(int viewport_width, int viewport_height, VertexShader* vertex_shader, PixelShader* pixel_shader)
+void GameObjectManager::renderAll(int viewportWidth, int viewportHeight)
 {
-	for (auto& i : gameObjectList)
-	{
-		if (i->isActive())
-		{
-			i->draw(viewport_width, viewport_height, vertex_shader, pixel_shader);
+	for (int i = 0; i < this->gameObjectList.size(); i++) {
+		//replace with component update
+		if (this->gameObjectList[i]->isEnabled()) {
+			this->gameObjectList[i]->draw(viewportWidth, viewportHeight);
 		}
 	}
 }
 
-void GameObjectManager::addObject(AGameObject* game_object)
+void GameObjectManager::addObject(AGameObject* gameObject)
 {
-	gameObjectList.push_back(game_object);
-	gameObjectTable[game_object->getName()] = game_object;
+	if (this->gameObjectMap[gameObject->getName()] != NULL) {
+		int count = 1;
+		String revisedString = gameObject->getName() + " " + "(" + std::to_string(count) + ")";
+		while (this->gameObjectMap[revisedString] != NULL) {
+			count++;
+			revisedString = gameObject->getName() + " " + "(" + std::to_string(count) + ")";
+		}
+		//std::cout << "Duplicate found. New name is: " << revisedString << "\n";
+		gameObject->name = revisedString;
+		this->gameObjectMap[revisedString] = gameObject;
+	}
+	else {
+		this->gameObjectMap[gameObject->getName()] = gameObject;
+	}
+
+	this->gameObjectList.push_back(gameObject);
 }
 
-void GameObjectManager::createObject(PrimitiveType primitive_type, void* shader_byte_code, size_t shader_size)
+void GameObjectManager::createObject(PrimitiveType type)
 {
-	std::string newName = "";
+	if (type == PrimitiveType::CUBE) {
+		Cube* cube = new Cube("Cube");
+		cube->setPosition(0.0f, 0.0f, 0.0f);
+		cube->setScale(1.0f, 1.0f, 1.0f);
+		this->addObject(cube);
+	}
 
-	switch (primitive_type)			//got the do-while loop idea from Nate
-	{
-		case CUBE:
-			{
-				int cubeCount = -1;
-				AGameObject* cube = nullptr;
-				do
-				{
-					cubeCount++;
-					newName = "Cube " + std::to_string(cubeCount);
-					cube = gameObjectTable[newName];
-				}
-				while (cube);
+	else if (type == PrimitiveType::PLANE) {
+		Plane* plane = new Plane("Plane");
+		this->addObject(plane);
+	}
 
-				Cube* newCube = new Cube(newName, shader_byte_code, shader_size);
-				addObject(newCube);
-				std::cout << newCube->getName() << " instantiated." << std::endl;
-				break;
-			}
-		case PLANE:
-			{
-				int planeCount = -1;
-				AGameObject* plane = nullptr;
-				do
-				{
-					planeCount++;
-					newName = "Plane " + std::to_string(planeCount);
-					plane = gameObjectTable[newName];
-				}
-				while (plane);
+	else if (type == PrimitiveType::TEXTURED_CUBE) {
+		TexturedCube* cube = new TexturedCube("Cube_Textured");
+		cube->setPosition(0.0f, 0.0f, 0.0f);
+		cube->setScale(1.0f, 1.0f, 1.0f);
+		this->addObject(cube);
+	}
 
-				Plane* newPlane = new Plane(newName, shader_byte_code, shader_size);
-				addObject(newPlane);
-				std::cout << newPlane->getName() << " instantiated." << std::endl;
+	else if (type == PrimitiveType::PHYSICS_CUBE) {
+		PhysicsCube* cube = new PhysicsCube("Cube_Physics");
+		this->addObject(cube);
+	}
 
-				break;
-			}
-		default:
+	else if (type == PrimitiveType::PHYSICS_PLANE) {
+		PhysicsPlane* plane = new PhysicsPlane("Plane_Physics");
+		this->addObject(plane);
+	}
+}
+
+void GameObjectManager::deleteObject(AGameObject* gameObject)
+{
+	this->gameObjectMap.erase(gameObject->getName());
+
+	int index = -1;
+	for (int i = 0; i < this->gameObjectList.size(); i++) {
+		if (this->gameObjectList[i] == gameObject) {
+			index = i;
 			break;
+		}
+	}
+
+	if (index != -1) {
+		this->gameObjectList.erase(this->gameObjectList.begin() + index);
+	}
+
+	if (gameObject == this->selectedObject)
+		this->selectedObject = nullptr;
+
+	delete gameObject;
+}
+
+void GameObjectManager::deleteObjectByName(String name)
+{
+	AGameObject* object = this->findObjectByName(name);
+
+	if (object != NULL) {
+		this->deleteObject(object);
 	}
 }
 
-void GameObjectManager::createObject(PrimitiveType primitive_type)
+void GameObjectManager::setSelectedObject(String name)
 {
-	std::string newName = "";
-
-	switch (primitive_type)
-	{
-		case CUBE:
-			{
-				int cubeCount = -1;
-				AGameObject* cube = nullptr;
-				do
-				{
-					cubeCount++;
-					newName = "Cube " + std::to_string(cubeCount);
-					cube = gameObjectTable[newName];
-				}
-				while (cube);
-
-				Cube* newCube = new Cube(newName, vertexShaderByteCode, shaderSize);
-				addObject(newCube);
-				std::cout << newCube->getName() << " instantiated." << std::endl;
-			
-				break;
-			}
-		case PLANE:
-			{
-				int planeCount = -1;
-				AGameObject* plane = nullptr;
-				do {
-					planeCount++;
-					newName = "Plane " + std::to_string(planeCount);
-					plane = gameObjectTable[newName];
-				}
-				while (plane);
-
-				Plane* newPlane = new Plane(newName, vertexShaderByteCode, shaderSize);
-				addObject(newPlane);
-				std::cout << newPlane->getName() << " instantiated." << std::endl;
-
-				break;
-			}
-		default:
-			break;
+	if (this->gameObjectMap[name] != NULL) {
+		this->setSelectedObject(this->gameObjectMap[name]);
 	}
 }
 
-void GameObjectManager::deleteObject(AGameObject* game_object)
+void GameObjectManager::setSelectedObject(AGameObject* gameObject)
 {
-	std::string key = game_object->getName();
-
-	gameObjectTable.erase(key);
-	gameObjectList.erase(std::remove(gameObjectList.begin(), gameObjectList.end(), game_object), gameObjectList.end());
-	gameObjectList.shrink_to_fit();
-
-	delete game_object;
-}
-
-void GameObjectManager::deleteObjectByName(std::string name)
-{
-	AGameObject* object = findObjectByName(name);
-
-	if (object)
-	{
-		deleteObject(object);
-	}
-}
-
-void GameObjectManager::setSelectedObject(std::string name)
-{
-	if (selectedObject)
-	{
-		selectedObject->deselectObject();
-	}
-
-	AGameObject* object = findObjectByName(name);
-
-	if (object)
-	{
-		selectedObject = object;
-		object->selectObject();
-	}
-}
-
-void GameObjectManager::setSelectedObject(AGameObject* game_object)
-{
-	if (selectedObject)
-	{
-		selectedObject->deselectObject();
-	}
-
-	selectedObject = game_object;
-	game_object->selectObject();
+	this->selectedObject = gameObject;
 }
 
 AGameObject* GameObjectManager::getSelectedObject()
 {
-	return selectedObject;
-}
-
-void GameObjectManager::deselectObject()
-{
-	if (selectedObject)
-	{
-		selectedObject->deselectObject();
-		selectedObject = nullptr;
-	}
-}
-
-void GameObjectManager::setVertexShaderProperties(void* shader_byte_code, size_t shader_size)
-{
-	vertexShaderByteCode = shader_byte_code;
-	shaderSize = shader_size;
+	return this->selectedObject;
 }
 
 GameObjectManager::GameObjectManager()
 {
-	selectedObject = nullptr;
 }
 
 GameObjectManager::~GameObjectManager()
 {
-	delete instance;
 }

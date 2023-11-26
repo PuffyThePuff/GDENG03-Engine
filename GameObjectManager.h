@@ -1,55 +1,53 @@
 #pragma once
-#include "AGameObject.h"
-#include <string>
+#include <iostream>
 #include <vector>
+#include <string>
 #include <unordered_map>
-#include "VertexShader.h"
-#include "PixelShader.h"
+#include "AGameObject.h"
 
 class GameObjectManager
 {
 public:
+	typedef std::string String;
+	typedef std::vector<AGameObject*> List;
+	typedef std::unordered_map<String, AGameObject*> HashTable;
+
 	enum PrimitiveType {
+		TEXTURED_CUBE,
 		CUBE,
-		PLANE
+		PLANE,
+		SPHERE,
+		PHYSICS_CUBE,
+		PHYSICS_PLANE
 	};
 
 	static GameObjectManager* getInstance();
 	static void initialize();
 	static void destroy();
 
-	AGameObject* findObjectByName(std::string name);
-	std::vector<AGameObject*> getAllGameObjects();
-	int getObjectCount();
-	int getActiveObjectCount();
-	void update();
-	void render(int viewport_width, int viewport_height, VertexShader* vertex_shader, PixelShader* pixel_shader);
-	void addObject(AGameObject* game_object);
-	void createObject(PrimitiveType primitive_type, void* shader_byte_code, size_t shader_size);
-	void createObject(PrimitiveType primitive_type);
-	void deleteObject(AGameObject* game_object);
-	void deleteObjectByName(std::string name);
-
-	//let object manager handle the selection to lessen spaghetti code
-	void setSelectedObject(std::string name);
-	void setSelectedObject(AGameObject* game_object);
+	AGameObject* findObjectByName(String name);
+	List getAllObjects();
+	int activeObjects();
+	void updateAll();
+	void renderAll(int viewportWidth, int viewportHeight);
+	void addObject(AGameObject* gameObject);
+	void createObject(PrimitiveType type);
+	void deleteObject(AGameObject* gameObject);
+	void deleteObjectByName(String name);
+	void setSelectedObject(String name);
+	void setSelectedObject(AGameObject* gameObject);
 	AGameObject* getSelectedObject();
-	void deselectObject();
-
-	void setVertexShaderProperties(void* shader_byte_code, size_t shader_size);
 
 private:
 	GameObjectManager();
 	~GameObjectManager();
-	GameObjectManager(GameObjectManager const&) {};
-	GameObjectManager& operator =(GameObjectManager const&) {};
-	static GameObjectManager* instance;
+	GameObjectManager(GameObjectManager const&) {};             // copy constructor is private
+	GameObjectManager& operator=(GameObjectManager const&) {};  // assignment operator is private*/
+	static GameObjectManager* sharedInstance;
 
-	std::vector<AGameObject*> gameObjectList;
-	std::unordered_map<std::string, AGameObject*> gameObjectTable;
+	HashTable gameObjectMap;
+	List gameObjectList;
 
-	AGameObject* selectedObject = nullptr;
-
-	void* vertexShaderByteCode = nullptr;
-	size_t shaderSize = 0;
+	AGameObject* selectedObject = NULL;
 };
+

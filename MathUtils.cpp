@@ -1,6 +1,5 @@
 #include "MathUtils.h"
 #include <stdlib.h>
-#include <cmath>
 
 float MathUtils::randomFloat(float a, float b)
 {
@@ -16,14 +15,4 @@ int MathUtils::randomInt(int a, int b)
     int num = rand() % range + a;
 
     return num;
-}
-
-float MathUtils::toRadians(float theta)
-{
-    return theta * acos(0.f) / 90.f;
-}
-
-float MathUtils::toDegrees(float theta)
-{
-    return 90.f * theta / acos(0.f);
 }
